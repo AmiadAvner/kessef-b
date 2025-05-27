@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,15 +81,15 @@ const CategoryPage = ({ title, icon: IconComponent, color, storageKey }: Categor
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 pb-safe" dir="rtl">
       <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center mb-6">
+        {/* Header - Mobile optimized */}
+        <div className="flex items-center mb-6 pt-safe">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate("/")}
-            className="ml-4 hover:bg-slate-200"
+            className="ml-4 hover:bg-slate-200 touch-manipulation"
           >
             <ArrowRight size={20} />
           </Button>
@@ -96,46 +97,47 @@ const CategoryPage = ({ title, icon: IconComponent, color, storageKey }: Categor
             <div className={`p-3 rounded-full ${color} text-white`}>
               <IconComponent size={24} />
             </div>
-            <h1 className="text-3xl font-bold text-slate-800">{title}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-800">{title}</h1>
           </div>
         </div>
 
-        {/* Current Month Total */}
-        <Card className="p-6 mb-6 bg-white border-2 border-slate-200">
+        {/* Current Month Total - Mobile optimized */}
+        <Card className="p-4 md:p-6 mb-6 bg-white border-2 border-slate-200">
           <div className="text-center">
-            <p className="text-slate-600 mb-2">סה"כ החודש הנוכחי</p>
-            <p className="text-3xl font-bold text-slate-800">₪{getCurrentMonthTotal().toLocaleString()}</p>
+            <p className="text-slate-600 mb-2 text-sm md:text-base">סה"כ החודש הנוכחי</p>
+            <p className="text-2xl md:text-3xl font-bold text-slate-800">₪{getCurrentMonthTotal().toLocaleString()}</p>
           </div>
         </Card>
 
-        {/* Add Expense Form */}
-        <Card className="p-6 mb-6 bg-white border-2 border-slate-200">
-          <h2 className="text-xl font-semibold text-slate-800 mb-4 flex items-center">
+        {/* Add Expense Form - Mobile optimized */}
+        <Card className="p-4 md:p-6 mb-6 bg-white border-2 border-slate-200">
+          <h2 className="text-lg md:text-xl font-semibold text-slate-800 mb-4 flex items-center">
             <Plus size={20} className="ml-2" />
             הוסף הוצאה חדשה
           </h2>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Input
               type="number"
+              inputMode="decimal"
               placeholder="סכום בש״ח"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && addExpense()}
-              className="flex-1 text-lg p-3 border-2 border-slate-300 focus:border-blue-500"
+              className="flex-1 text-lg p-4 border-2 border-slate-300 focus:border-blue-500 touch-manipulation"
               dir="ltr"
             />
             <Button 
               onClick={addExpense}
-              className={`${color} hover:opacity-90 text-white px-6 py-3 text-lg`}
+              className={`${color} hover:opacity-90 text-white px-6 py-4 text-lg touch-manipulation min-h-[48px]`}
             >
               הוסף
             </Button>
           </div>
         </Card>
 
-        {/* Monthly Summary */}
-        <Card className="p-6 bg-white border-2 border-slate-200">
-          <h2 className="text-xl font-semibold text-slate-800 mb-4 flex items-center">
+        {/* Monthly Summary - Mobile optimized */}
+        <Card className="p-4 md:p-6 bg-white border-2 border-slate-200">
+          <h2 className="text-lg md:text-xl font-semibold text-slate-800 mb-4 flex items-center">
             <Calendar size={20} className="ml-2" />
             סיכום חודשי
           </h2>
@@ -146,10 +148,10 @@ const CategoryPage = ({ title, icon: IconComponent, color, storageKey }: Categor
               {getMonthlyTotals().map(([month, total]) => (
                 <div 
                   key={month}
-                  className="flex justify-between items-center p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                  className="flex justify-between items-center p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors touch-manipulation"
                 >
-                  <span className="font-medium text-slate-700">{month}</span>
-                  <span className="font-bold text-slate-800">₪{total.toLocaleString()}</span>
+                  <span className="font-medium text-slate-700 text-sm md:text-base">{month}</span>
+                  <span className="font-bold text-slate-800 text-sm md:text-base">₪{total.toLocaleString()}</span>
                 </div>
               ))}
             </div>

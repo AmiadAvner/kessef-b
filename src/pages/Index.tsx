@@ -35,26 +35,26 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 pb-safe" dir="rtl">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8 pt-8">
-          <h1 className="text-4xl font-bold text-slate-800 mb-2">מעקב הוצאות</h1>
-          <p className="text-lg text-slate-600">ניהול פשוט והוצאות חודשיות</p>
+        <div className="text-center mb-8 pt-safe pt-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-2">מעקב הוצאות</h1>
+          <p className="text-base md:text-lg text-slate-600">ניהול פשוט והוצאות חודשיות</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 max-w-2xl mx-auto">
           {categories.map((category) => {
             const IconComponent = category.icon;
             return (
               <Card 
                 key={category.path}
-                className="p-0 overflow-hidden border-2 border-slate-200 hover:border-slate-300 transition-all duration-300 hover:shadow-lg cursor-pointer transform hover:scale-105"
+                className="p-0 overflow-hidden border-2 border-slate-200 hover:border-slate-300 transition-all duration-300 hover:shadow-lg cursor-pointer transform hover:scale-105 touch-manipulation"
                 onClick={() => navigate(category.path)}
               >
-                <div className={`${category.color} p-8 text-white transition-all duration-300`}>
-                  <div className="flex flex-col items-center text-center space-y-4">
-                    <IconComponent size={48} className="drop-shadow-lg" />
-                    <h2 className="text-2xl font-bold drop-shadow-sm">{category.title}</h2>
+                <div className={`${category.color} p-6 md:p-8 text-white transition-all duration-300`}>
+                  <div className="flex flex-col items-center text-center space-y-3 md:space-y-4">
+                    <IconComponent size={40} className="md:size-12 drop-shadow-lg" />
+                    <h2 className="text-lg md:text-2xl font-bold drop-shadow-sm">{category.title}</h2>
                   </div>
                 </div>
               </Card>
@@ -62,7 +62,7 @@ const Index = () => {
           })}
         </div>
 
-        <div className="text-center mt-12">
+        <div className="text-center mt-8 md:mt-12">
           <p className="text-slate-500 text-sm">בחר קטגוריה להתחלת מעקב הוצאות</p>
         </div>
       </div>
