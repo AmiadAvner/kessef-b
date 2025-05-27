@@ -1,11 +1,70 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
+import { Fuel, ShoppingCart, Gift, Home } from "lucide-react";
 
 const Index = () => {
+  const navigate = useNavigate();
+
+  const categories = [
+    {
+      title: "דלק",
+      icon: Fuel,
+      path: "/fuel",
+      color: "bg-gradient-to-br from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600"
+    },
+    {
+      title: "סופר",
+      icon: ShoppingCart,
+      path: "/grocery",
+      color: "bg-gradient-to-br from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600"
+    },
+    {
+      title: "מותרות",
+      icon: Gift,
+      path: "/luxury",
+      color: "bg-gradient-to-br from-purple-400 to-pink-500 hover:from-purple-500 hover:to-pink-600"
+    },
+    {
+      title: "הוצאות חיוניות",
+      icon: Home,
+      path: "/essential",
+      color: "bg-gradient-to-br from-blue-400 to-indigo-500 hover:from-blue-500 hover:to-indigo-600"
+    }
+  ];
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4" dir="rtl">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-8 pt-8">
+          <h1 className="text-4xl font-bold text-slate-800 mb-2">מעקב הוצאות</h1>
+          <p className="text-lg text-slate-600">ניהול פשוט והוצאות חודשיות</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+          {categories.map((category) => {
+            const IconComponent = category.icon;
+            return (
+              <Card 
+                key={category.path}
+                className="p-0 overflow-hidden border-2 border-slate-200 hover:border-slate-300 transition-all duration-300 hover:shadow-lg cursor-pointer transform hover:scale-105"
+                onClick={() => navigate(category.path)}
+              >
+                <div className={`${category.color} p-8 text-white transition-all duration-300`}>
+                  <div className="flex flex-col items-center text-center space-y-4">
+                    <IconComponent size={48} className="drop-shadow-lg" />
+                    <h2 className="text-2xl font-bold drop-shadow-sm">{category.title}</h2>
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+
+        <div className="text-center mt-12">
+          <p className="text-slate-500 text-sm">בחר קטגוריה להתחלת מעקב הוצאות</p>
+        </div>
       </div>
     </div>
   );
