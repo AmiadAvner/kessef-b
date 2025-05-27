@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { ArrowRight, Plus, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { LucideIcon } from "lucide-react";
 
 interface Expense {
   id: string;
@@ -16,7 +16,7 @@ interface Expense {
 
 interface CategoryPageProps {
   title: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: LucideIcon;
   color: string;
   storageKey: string;
 }
