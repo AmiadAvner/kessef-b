@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Plus, Calendar } from "lucide-react";
+import { ArrowRight, Plus, Calendar, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { LucideIcon } from "lucide-react";
@@ -65,6 +65,20 @@ const CategoryPage = ({ title, icon: IconComponent, color, storageKey }: Categor
     });
   };
 
+  const deleteExpense = (expenseId: string) => {
+    const expenseToDelete = expenses.find(expense => expense.id === expenseId);
+    if (!expenseToDelete) return;
+
+    const updatedExpenses = expenses.filter(expense => expense.id !== expenseId);
+    setExpenses(updatedExpenses);
+    localStorage.setItem(storageKey, JSON.stringify(updatedExpenses));
+
+    toast({
+      title: "הוצאה נמחקה",
+      description: `הוצאה של ₪${expenseToDelete.amount} נמחקה בהצלחה`,
+    });
+  };
+
   const getCurrentMonthTotal = () => {
     const currentMonth = new Date().toLocaleDateString("he-IL", { year: 'numeric', month: 'long' });
     return expenses
@@ -72,12 +86,22 @@ const CategoryPage = ({ title, icon: IconComponent, color, storageKey }: Categor
       .reduce((sum, expense) => sum + expense.amount, 0);
   };
 
-  const getMonthlyTotals = () => {
-    const monthlyTotals: { [key: string]: number } = {};
+  const getExpensesByMonth = () => {
+    const expensesByMonth: { [key: string]: Expense[] } = {};
     expenses.forEach(expense => {
-      monthlyTotals[expense.month] = (monthlyTotals[expense.month] || 0) + expense.amount;
+      if (!expensesByMonth[expense.month]) {
+        expensesByMonth[expense.month] = [];
+      }
+      expensesByMonth[expense.month].push(expense);
     });
-    return Object.entries(monthlyTotals).sort().reverse();
+    
+    // Sort months in reverse chronological order and sort expenses within each month by date
+    return Object.entries(expensesByMonth)
+      .sort((a, b) => b[0].localeCompare(a[0]))
+      .map(([month, expenses]) => [
+        month, 
+        expenses.sort((a, b) => new Date(b.date.split('.').reverse().join('-')).getTime() - new Date(a.date.split('.').reverse().join('-')).getTime())
+      ]);
   };
 
   return (
@@ -135,25 +159,53 @@ const CategoryPage = ({ title, icon: IconComponent, color, storageKey }: Categor
           </div>
         </Card>
 
-        {/* Monthly Summary - Mobile optimized */}
+        {/* Expenses by Month - Mobile optimized */}
         <Card className="p-4 md:p-6 bg-white border-2 border-slate-200">
           <h2 className="text-lg md:text-xl font-semibold text-slate-800 mb-4 flex items-center">
             <Calendar size={20} className="ml-2" />
-            סיכום חודשי
+            הוצאות חודשיות
           </h2>
-          {getMonthlyTotals().length === 0 ? (
+          {getExpensesByMonth().length === 0 ? (
             <p className="text-slate-500 text-center py-8">עדיין לא נוספו הוצאות</p>
           ) : (
-            <div className="space-y-3">
-              {getMonthlyTotals().map(([month, total]) => (
-                <div 
-                  key={month}
-                  className="flex justify-between items-center p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors touch-manipulation"
-                >
-                  <span className="font-medium text-slate-700 text-sm md:text-base">{month}</span>
-                  <span className="font-bold text-slate-800 text-sm md:text-base">₪{total.toLocaleString()}</span>
-                </div>
-              ))}
+            <div className="space-y-6">
+              {getExpensesByMonth().map(([month, monthExpenses]) => {
+                const monthTotal = monthExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+                return (
+                  <div key={month} className="space-y-3">
+                    {/* Month header with total */}
+                    <div className="flex justify-between items-center p-4 bg-slate-100 rounded-lg">
+                      <span className="font-bold text-slate-800 text-base md:text-lg">{month}</span>
+                      <span className="font-bold text-slate-800 text-base md:text-lg">₪{monthTotal.toLocaleString()}</span>
+                    </div>
+                    
+                    {/* Individual expenses */}
+                    <div className="space-y-2 mr-4">
+                      {monthExpenses.map((expense) => (
+                        <div 
+                          key={expense.id}
+                          className="flex justify-between items-center p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                        >
+                          <div className="flex-1">
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium text-slate-700 text-sm md:text-base">₪{expense.amount.toLocaleString()}</span>
+                              <span className="text-slate-500 text-xs md:text-sm">{expense.date}</span>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteExpense(expense.id)}
+                            className="mr-2 text-red-500 hover:text-red-700 hover:bg-red-50 touch-manipulation p-2"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </Card>
