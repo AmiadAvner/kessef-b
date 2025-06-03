@@ -2,17 +2,20 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Plus, Calendar, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { LucideIcon } from "lucide-react";
+import BudgetGoal from "./BudgetGoal";
 
 interface Expense {
   id: string;
   amount: number;
   date: string;
   month: string;
+  note?: string;
 }
 
 interface CategoryPageProps {
@@ -20,12 +23,15 @@ interface CategoryPageProps {
   icon: LucideIcon;
   color: string;
   storageKey: string;
+  showBudgetGoal?: boolean;
+  budgetGoal?: number;
 }
 
-const CategoryPage = ({ title, icon: IconComponent, color, storageKey }: CategoryPageProps) => {
+const CategoryPage = ({ title, icon: IconComponent, color, storageKey, showBudgetGoal = false, budgetGoal = 0 }: CategoryPageProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [amount, setAmount] = useState("");
+  const [note, setNote] = useState("");
   const [expenses, setExpenses] = useState<Expense[]>([]);
 
   useEffect(() => {
@@ -51,13 +57,15 @@ const CategoryPage = ({ title, icon: IconComponent, color, storageKey }: Categor
       id: Date.now().toString(),
       amount: numAmount,
       date: now.toLocaleDateString("he-IL"),
-      month: now.toLocaleDateString("he-IL", { year: 'numeric', month: 'long' })
+      month: now.toLocaleDateString("he-IL", { year: 'numeric', month: 'long' }),
+      note: note.trim() || undefined
     };
 
     const updatedExpenses = [...expenses, newExpense];
     setExpenses(updatedExpenses);
     localStorage.setItem(storageKey, JSON.stringify(updatedExpenses));
     setAmount("");
+    setNote("");
 
     toast({
       title: "הוספה בוצעה",
@@ -125,6 +133,15 @@ const CategoryPage = ({ title, icon: IconComponent, color, storageKey }: Categor
           </div>
         </div>
 
+        {/* Budget Goal - Show only for luxury category */}
+        {showBudgetGoal && (
+          <BudgetGoal 
+            goal={budgetGoal} 
+            current={getCurrentMonthTotal()} 
+            color={color}
+          />
+        )}
+
         {/* Current Month Total - Mobile optimized */}
         <Card className="p-4 md:p-6 mb-6 bg-white border-2 border-slate-200">
           <div className="text-center">
@@ -139,23 +156,31 @@ const CategoryPage = ({ title, icon: IconComponent, color, storageKey }: Categor
             <Plus size={20} className="ml-2" />
             הוסף הוצאה חדשה
           </h2>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Input
-              type="number"
-              inputMode="decimal"
-              placeholder="סכום בש״ח"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addExpense()}
-              className="flex-1 text-lg p-4 border-2 border-slate-300 focus:border-blue-500 touch-manipulation"
-              dir="ltr"
+          <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Input
+                type="number"
+                inputMode="decimal"
+                placeholder="סכום בש״ח"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="flex-1 text-lg p-4 border-2 border-slate-300 focus:border-blue-500 touch-manipulation"
+                dir="ltr"
+              />
+              <Button 
+                onClick={addExpense}
+                className={`${color} hover:opacity-90 text-white px-6 py-4 text-lg touch-manipulation min-h-[48px]`}
+              >
+                הוסף
+              </Button>
+            </div>
+            <Textarea
+              placeholder="הערה (אופציונלי) - למה הוצאת את הכסף?"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              className="text-base p-3 border-2 border-slate-300 focus:border-blue-500 touch-manipulation resize-none"
+              rows={2}
             />
-            <Button 
-              onClick={addExpense}
-              className={`${color} hover:opacity-90 text-white px-6 py-4 text-lg touch-manipulation min-h-[48px]`}
-            >
-              הוסף
-            </Button>
           </div>
         </Card>
 
@@ -184,19 +209,22 @@ const CategoryPage = ({ title, icon: IconComponent, color, storageKey }: Categor
                       {monthExpenses.map((expense) => (
                         <div 
                           key={expense.id}
-                          className="flex justify-between items-center p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                          className="flex justify-between items-start p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
                         >
                           <div className="flex-1">
-                            <div className="flex justify-between items-center">
+                            <div className="flex justify-between items-center mb-1">
                               <span className="font-medium text-slate-700 text-sm md:text-base">₪{expense.amount.toLocaleString()}</span>
                               <span className="text-slate-500 text-xs md:text-sm">{expense.date}</span>
                             </div>
+                            {expense.note && (
+                              <p className="text-slate-600 text-xs md:text-sm mt-1 leading-relaxed">{expense.note}</p>
+                            )}
                           </div>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => deleteExpense(expense.id)}
-                            className="mr-2 text-red-500 hover:text-red-700 hover:bg-red-50 touch-manipulation p-2"
+                            className="mr-2 text-red-500 hover:text-red-700 hover:bg-red-50 touch-manipulation p-2 flex-shrink-0"
                           >
                             <Trash2 size={16} />
                           </Button>

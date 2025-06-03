@@ -9,6 +9,8 @@ const LuxuryPage = () => {
       icon={Gift}
       color="bg-gradient-to-br from-purple-400 to-pink-500"
       storageKey="luxury-expenses"
+      showBudgetGoal={true}
+      budgetGoal={1600}
     />
   );
 };
