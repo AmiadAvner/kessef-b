@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Plus, Calendar, Trash2 } from "lucide-react";
+import { ArrowRight, Plus, Calendar, Trash2, Edit2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { LucideIcon } from "lucide-react";
 import BudgetGoal from "./BudgetGoal";
+import EditExpenseDialog from "./EditExpenseDialog";
 
 interface Expense {
   id: string;
@@ -33,6 +34,7 @@ const CategoryPage = ({ title, icon: IconComponent, color, storageKey, showBudge
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
 
   useEffect(() => {
     const savedExpenses = localStorage.getItem(storageKey);
@@ -73,6 +75,21 @@ const CategoryPage = ({ title, icon: IconComponent, color, storageKey, showBudge
     });
   };
 
+  const editExpense = (expenseId: string, updatedAmount: number, updatedNote?: string) => {
+    const updatedExpenses = expenses.map(expense => 
+      expense.id === expenseId 
+        ? { ...expense, amount: updatedAmount, note: updatedNote }
+        : expense
+    );
+    setExpenses(updatedExpenses);
+    localStorage.setItem(storageKey, JSON.stringify(updatedExpenses));
+
+    toast({
+      title: "הוצאה עודכנה",
+      description: `הוצאה עודכנה בהצלחה לסכום של ₪${updatedAmount}`,
+    });
+  };
+
   const deleteExpense = (expenseId: string) => {
     const expenseToDelete = expenses.find(expense => expense.id === expenseId);
     if (!expenseToDelete) return;
@@ -106,10 +123,10 @@ const CategoryPage = ({ title, icon: IconComponent, color, storageKey, showBudge
     // Sort months in reverse chronological order and sort expenses within each month by date
     return Object.entries(expensesByMonth)
       .sort((a, b) => b[0].localeCompare(a[0]))
-      .map(([month, expenses]) => [
+      .map(([month, monthExpenses]) => [
         month, 
-        expenses.sort((a, b) => new Date(b.date.split('.').reverse().join('-')).getTime() - new Date(a.date.split('.').reverse().join('-')).getTime())
-      ]);
+        monthExpenses.sort((a, b) => new Date(b.date.split('.').reverse().join('-')).getTime() - new Date(a.date.split('.').reverse().join('-')).getTime())
+      ] as [string, Expense[]]);
   };
 
   return (
@@ -220,14 +237,24 @@ const CategoryPage = ({ title, icon: IconComponent, color, storageKey, showBudge
                               <p className="text-slate-600 text-xs md:text-sm mt-1 leading-relaxed">{expense.note}</p>
                             )}
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteExpense(expense.id)}
-                            className="mr-2 text-red-500 hover:text-red-700 hover:bg-red-50 touch-manipulation p-2 flex-shrink-0"
-                          >
-                            <Trash2 size={16} />
-                          </Button>
+                          <div className="flex gap-2 mr-2 flex-shrink-0">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setEditingExpense(expense)}
+                              className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 touch-manipulation p-2"
+                            >
+                              <Edit2 size={16} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteExpense(expense.id)}
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50 touch-manipulation p-2"
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -237,6 +264,15 @@ const CategoryPage = ({ title, icon: IconComponent, color, storageKey, showBudge
             </div>
           )}
         </Card>
+
+        {/* Edit Expense Dialog */}
+        {editingExpense && (
+          <EditExpenseDialog
+            expense={editingExpense}
+            onSave={editExpense}
+            onCancel={() => setEditingExpense(null)}
+          />
+        )}
       </div>
     </div>
   );
